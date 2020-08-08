@@ -1,0 +1,60 @@
+import puppeteer from 'puppeteer'
+export const headless = Boolean(process.env.HEADLESS)
+export const dimensions = {
+  width: 1280,
+  height: 800
+}
+describe('Calc app behaviour', () => {
+  let browser, page
+  beforeAll(async () => {
+    browser = await puppeteer.launch({
+      headless,
+      defaultViewport: dimensions,
+      args: [
+        `--window-size=${dimensions.width},${dimensions.height}`
+      ]
+    })
+    page = await browser.newPage()
+    await page.goto(`${process.env.BASE_URL}`, { waitUntil: 'networkidle2' })
+  })
+
+  it('Contains text signature', async () => {
+    const text = await page.$eval('.calc h3', e => e.innerText)
+    expect(text).toContain('Easy calculator')
+  })
+
+  it('Contains increment button', async () => {
+    const increment = await page.$('.calc #increment')
+    expect(increment).toBeTruthy()
+  })
+  it('Contains decrement button', async () => {
+    const decrement = await page.$('.calc #decrement')
+    expect(decrement).toBeTruthy()
+  })
+
+  it('Contains reset button', async () => {
+    const reset = await page.$('.calc #reset')
+    expect(reset).toBeTruthy()
+  })
+
+  it('Contains counter', async () => {
+    const counter = await page.$('.calc #counter')
+    expect(counter).toBeTruthy()
+  })
+
+  it('Click on increment increases counter', async () => {
+    await page.click('.calc #increment')
+    const text = await page.$eval('.calc #counter', e => e.innerText)
+    expect(Number(text)).toBe(1)
+  })
+
+  it('Click on decrement decreases counter', async () => {
+    await page.click('.calc #decrement')
+    const text = await page.$eval('.calc #counter', e => e.innerText)
+    expect(Number(text)).toBe(0)
+  })
+
+  afterAll(async () => {
+    await page.browser().close()
+  })
+})

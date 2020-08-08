@@ -1,0 +1,54 @@
+const fs = require('fs')
+const path = require('path')
+const PNG = require('pngjs').PNG
+const pixelmatch = require('pixelmatch')
+import puppeteer from 'puppeteer'
+export const headless = Boolean(process.env.HEADLESS)
+export const dimensions = {
+  width: 1280,
+  height: 800
+}
+const screenshots = path.join(__dirname, 'screenshots')
+describe('Screenshots', () => {
+  let browser, page
+  beforeAll(async () => {
+    browser = await puppeteer.launch({
+      headless,
+      defaultViewport: dimensions,
+      args: [
+        `--window-size=${dimensions.width},${dimensions.height}`
+      ]
+    })
+    page = await browser.newPage()
+    await page.goto(`${process.env.BASE_URL}`, { waitUntil: 'networkidle2' })
+    if (!fs.existsSync(`${screenshots}/original.png`)) {
+      await page.screenshot({
+        path: `${screenshots}/original.png`,
+        type: 'png'
+      })
+    }
+    if (fs.existsSync(`${screenshots}/difference.png`)) {
+      fs.unlinkSync(`${screenshots}/difference.png`)
+    }
+  })
+  test('Match screenshot', async () => {
+    await page.screenshot({
+      path: `${screenshots}/current.png`,
+      type: 'png'
+    })
+    const original = PNG.sync.read(fs.readFileSync(`${screenshots}/original.png`))
+    const current = PNG.sync.read(fs.readFileSync(`${screenshots}/current.png`))
+    const diff = new PNG(dimensions)
+
+    const differentPixels = pixelmatch(original.data, current.data, diff.data, dimensions.width, dimensions.height, {
+      threshold: 0.1
+    })
+    if (differentPixels) {
+      fs.writeFileSync(`${screenshots}/difference.png`, PNG.sync.write(diff))
+    }
+    expect(differentPixels).toBe(0)
+  })
+  afterAll(async () => {
+    await page.browser().close()
+  })
+})

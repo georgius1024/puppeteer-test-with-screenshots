@@ -4,8 +4,8 @@ coverage
 package-lock.json
 yarn.lock
 .local
-# env files
-.env
+
+*.png
 
 # local env files
 .env.local
