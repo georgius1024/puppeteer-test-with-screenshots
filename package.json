@@ -1,0 +1,25 @@
+{
+  "name": "calc-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "e2e testing",
+  "scripts": {
+    "test": "jest -i"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.5.4",
+    "@babel/preset-env": "^7.5.4",
+    "babel-jest": "^26.0.1",
+    "dotenv": "^8.0.0",
+    "eslint-plugin-jest": "^23.1.1",
+    "jest": "^26.0.1",
+    "jest-puppeteer": "^4.2.0",
+    "puppeteer": "^1.18.1"
+  },
+  "dependencies": {
+    "pixelmatch": "^5.2.0",
+    "pngjs": "^5.0.0"
+  }
+}
